@@ -148,9 +148,9 @@ def init_neuron(numFeatures,numLabels):
 
 
 
-weights, bias = init_neuron(numFeatures,1)
+weights, bias = init_neuron(numFeatures,7)
 
-weights2, bias2 = init_neuron(numFeatures,1)
+weights2, bias2 = init_neuron(numFeatures,7)
 ######################
 ### PREDICTION OPS ###
 ######################
@@ -169,9 +169,9 @@ activation_neuron1 = tf.nn.sigmoid(add_bias_OP, name="activation_neuron1")
 
 activation_neuron2 = tf.nn.sigmoid(add_bias2_OP, name="activation_neuron2")
 
-weight_output, bias_output = init_neuron(1,numLabels)
+weight_output, bias_output = init_neuron(7,numLabels)
 
-weight_output2, bias_output2 = init_neuron(1,numLabels)
+weight_output2, bias_output2 = init_neuron(7,numLabels)
 
 
 print weight_output
