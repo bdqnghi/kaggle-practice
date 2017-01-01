@@ -129,7 +129,6 @@ X = tf.placeholder(tf.float32, [None, numFeatures])
 # means that we can hold any number of emails
 yGold = tf.placeholder(tf.float32, [None, numLabels])
 
-
 #################
 ### VARIABLES ###
 #################
@@ -137,27 +136,27 @@ yGold = tf.placeholder(tf.float32, [None, numLabels])
 # Values are randomly sampled from a Gaussian with a standard deviation of:
 #     sqrt(6 / (numInputNodes + numOutputNodes + 1))
 
-
 def init_neuron(numFeatures,numLabels):
-	weights = tf.Variable(tf.random_normal([numFeatures,numLabels],
+  weights = tf.Variable(tf.random_normal([numFeatures,numLabels],
                                        mean=0,
                                        stddev=(np.sqrt(6/numFeatures+
                                                          numLabels+1)),
                                        name="weights"))
+  bias = tf.Variable(tf.random_normal([numLabels],
+                                       name="bias"))
+  return weights, bias
 
 
-	return weights, bias
 
+weights, bias = init_neuron(numFeatures,1)
 
-weights, bias = init_neuron(numFeatures,numLabels)
-
-weights2, bias2 = init_neuron(numFeatures,numLabels)
+weights2, bias2 = init_neuron(numFeatures,1)
 ######################
 ### PREDICTION OPS ###
 ######################
 
 # INITIALIZE our weights and biases
-init_OP = tf.initialize_all_variables()
+
 
 # PREDICTION ALGORITHM i.e. FEEDFORWARD ALGORITHM
 apply_weights_OP = tf.matmul(X, weights, name="apply_weights")
@@ -166,18 +165,30 @@ add_bias_OP = tf.add(apply_weights_OP, bias, name="add_bias")
 apply_weights2_OP = tf.matmul(X, weights2, name="apply_weights2")
 add_bias2_OP = tf.add(apply_weights2_OP, bias2, name="add_bias2") 
 
-activation_OP = tf.nn.sigmoid(add_bias_OP, name="activation")
+activation_neuron1 = tf.nn.sigmoid(add_bias_OP, name="activation_neuron1")
 
-activation_OP2 = tf.nn.sigmoid(add_bias_OP2, name="activation2")
+activation_neuron2 = tf.nn.sigmoid(add_bias2_OP, name="activation_neuron2")
 
-weight_output, bias_output = init_neuron(numFeatures,numLabels)
+weight_output, bias_output = init_neuron(1,numLabels)
 
-apply_weights_output = tf.matmul(X,)
+weight_output2, bias_output2 = init_neuron(1,numLabels)
 
+
+print weight_output
+# print output
+apply_weights_output = tf.matmul(activation_neuron1,weight_output,name = "apply_weight_output")
+
+apply_weights_output2 = tf.matmul(activation_neuron2,weight_output2,name = "apply_weight_output2")
+
+total = tf.add(apply_weights_output,apply_weights_output2,name="total")
+
+add_bias_output = tf.add(total,bias_output,name="bias_output")
+
+activation_OP = tf.nn.sigmoid(add_bias_output, name="activation_output")
 #####################
 ### EVALUATION OP ###
 #####################
-
+init_OP = tf.initialize_all_variables()
 # COST FUNCTION i.e. MEAN SQUARED ERROR
 cost_OP = tf.nn.l2_loss(activation_OP-yGold, name="squared_error_cost")
 
@@ -219,6 +230,7 @@ sess = tf.Session()
 # Initialize all tensorflow variables
 sess.run(init_OP)
 
+
 ## Ops for vizualization
 # argmax(activation_OP, 1) gives the label our model thought was most likely
 # argmax(yGold, 1) is the correct label
@@ -251,6 +263,7 @@ for i in range(numEpochs):
     else:
         # Run training step
         step = sess.run(training_OP, feed_dict={X: trainX, yGold: trainY})
+      
         # Report occasional stats
         if i % 10 == 0:
             # Add epoch to epoch_values
